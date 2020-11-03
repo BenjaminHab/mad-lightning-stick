@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name Pulse_Arc_Welder_logic-rescue)(type Legacy)(uri ${KIPRJMOD}/Pulse_Arc_Welder_logic-rescue.lib)(options "")(descr ""))
+)
