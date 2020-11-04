@@ -63,11 +63,11 @@ enum setting_id : uint8_t
 
 //further functions
 
-uint8_t read_arm_button();
+//uint8_t read_arm_button();
 
 void weld_pulse(setting_t *pulsetime_setting);
 
-void setup_OC_Pin();
+void setup_OC();
 
 uint8_t u8x8_byte_hw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
 uint8_t u8x8_stm32_gpio_and_delay(U8X8_UNUSED u8x8_t *u8x8,

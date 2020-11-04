@@ -75,18 +75,23 @@ void Display::setup(u8x8_msg_cb byte_cb, u8x8_msg_cb gpio_and_delay_cb)
 void Encoder::setup()
 {
 
-
-	// Initialize GPIO
-	static Input encoder_button_pin(GPIOA, 5, PULL_UP);
+	//Button setup
+	static Input encoder_button_pin(GPIOA, 5, PULL_UP); 	// Initialize GPIO
 	button_pin = &encoder_button_pin;
 
 	//Setup Button External Interrupt Edge detection
 	SYSCFG->EXTICR[1] &= ~(0b1111 << SYSCFG_EXTICR2_EXTI5_Pos); // Set EXTI5 to watch pin A5
-	EXTI->EMR |= (EXTI_EMR_EM5); // Unmask the Event
+//	EXTI->EMR |= (EXTI_EMR_EM5); // Unmask the Event
 	EXTI->IMR |= (EXTI_IMR_IM5); // Unmask the Interrupt
 	EXTI->RTSR = (EXTI_RTSR_RT5); // Setup Trigger on rising edge
 	EXTI->FTSR = (EXTI_FTSR_FT5); // Setup Trigger on falling edge
 	EXTI->SWIER = EXTI_SWIER_SWI5; // Set Software Event, so that event can be read from EXTI->PR
+
+	//Setup timer 16
+	RCC->APB2ENR |= RCC_APB2ENR_TIM16EN; //Enable TIM16 peripheral clock
+	TIM16->PSC = 47999; //Set prescaler so one tick is equivalent to 1ms
+	TIM16->ARR = 4999; //Stop timer after 5 seconds
+	TIM16->CR1 |= TIM_CR1_OPM;
 
 
 	AFIO encoder_pin_a(GPIOA, 6, PULL_UP, AF1);
@@ -94,7 +99,7 @@ void Encoder::setup()
 	AFIO encoder_pin_b(GPIOA, 7, PULL_UP, AF1);
 //	encoder_pin_b.set_speed(HIGH_SPEED);
 
-	// Timer setup
+	// Timer 3 setup
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;// Enable TIM3 peripheral clock
 	TIM3->ARR = 0xffff; //set Auto Reload Register to a high value, so it won't make a problem
 	TIM3->CCMR1 |= (0b10 << TIM_CCMR1_CC1S_Pos) | (0b10 << TIM_CCMR1_CC2S_Pos); // Map the input pins to TI1 and TI2, respectively
@@ -131,8 +136,9 @@ void ADCobj::setup()
 	// {
 	ADC1->CR &= (uint32_t)(~ADC_CR_ADEN); /* (2) */
 	// }
-	ADC1->CR |= ADC_CR_ADCAL;              /* (3) */
-	while ((ADC1->CR & ADC_CR_ADCAL) != 0) /* (4) */
+	while ((ADC1->CR & ADC_CR_ADEN)){} //Wait for ADC to be off
+	ADC1->CR |= ADC_CR_ADCAL;              /* (3) */	//BUG: ADC is enabled at this point???
+	while ((ADC1->CR & ADC_CR_ADCAL) != 0) /* (4) */  //BUG: In the Statemachine Test, the program loops here endlessly
 	{
 		/* For robust implementation, add here time-out management */
 	}
@@ -178,6 +184,9 @@ std::vector<State>* Statemachine::setup()
 	static LED led(&led_pin);
 	peripherals.led = &led;
 
+	static Input arm_button(ARM_GPIO_Port, ARM_Pin, PULL_UP);
+	peripherals.button = &arm_button;
+
 	static Display display;
 	peripherals.display = &display;
 	peripherals.display->setup(&u8x8_byte_hw_i2c, &u8x8_stm32_gpio_and_delay);
@@ -194,7 +203,7 @@ std::vector<State>* Statemachine::setup()
 	peripherals.menu = &menu;
 	peripherals.menu->setup();
 
-	setup_OC_Pin();
+	setup_OC();
 
 	//Construct States
 	static std::vector<State> statevector;
@@ -222,7 +231,7 @@ std::vector<State>* Statemachine::setup()
 		(*peripherals).adc->read(TEST_CURRENT);
 
 		//change the state to PRESSED_STATE when button is pressed and electrode has contact
-		if (read_arm_button() && (*peripherals).adc->vsense > 1024)
+		if ((*peripherals).button->read() && (*peripherals).adc->vsense > 1024)
 		{
 			*active_state = statemachine::PRESSED_STATE;
 		}
@@ -248,7 +257,7 @@ std::vector<State>* Statemachine::setup()
 		return;
 	};
 	pressed_state.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
-		if (!read_arm_button()) //Wait for release of ARM Button
+		if (!((*peripherals).button->read())) //Wait for release of ARM Button
 		{
 			(*peripherals).adc->read(TEST_CURRENT); //check for electrode contact
 			if (((*peripherals).adc->vsense) >= 1024)
@@ -283,7 +292,7 @@ std::vector<State>* Statemachine::setup()
 	armed_state.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
 		(*peripherals).adc->read(TEST_CURRENT);
 		//check if the welder should be disarmed
-		if (read_arm_button())
+		if (((*peripherals).button->read()))
 		{
 			*active_state = statemachine::PRESSED_STATE;
 			return;
@@ -350,15 +359,15 @@ void RCC_Interface::setup(){
 	return;
 }
 
-uint8_t read_arm_button()
-{
-	//TODO: Configure PULLUP in CubeMX
-	// GPIO_TypeDef* Button_Port = ARM_GPIO_Port;
-	// uint16_t Button_Pin = ARM_Pin;
-	// //return the current state of the ARM Button
-	// return !HAL_GPIO_ReadPin(Button_Port, Button_Pin);
-	return !HAL_GPIO_ReadPin(ARM_GPIO_Port, ARM_Pin);
-}
+//uint8_t read_arm_button()
+//{
+//	//TODO: Configure PULLUP in CubeMX
+//	// GPIO_TypeDef* Button_Port = ARM_GPIO_Port;
+//	// uint16_t Button_Pin = ARM_Pin;
+//	// //return the current state of the ARM Button
+//	// return !HAL_GPIO_ReadPin(Button_Port, Button_Pin);
+//	return !HAL_GPIO_ReadPin(ARM_GPIO_Port, ARM_Pin);
+//}
 
 void weld_pulse(setting_t *pulsetime_setting)
 {

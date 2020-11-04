@@ -17,6 +17,7 @@ public:
     Display *display = nullptr;
     Encoder *encoder = nullptr;
     Menu *menu = nullptr;
+    Input *button = nullptr;
 };
 
 #endif

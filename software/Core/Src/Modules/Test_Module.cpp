@@ -12,15 +12,17 @@ ADC_Test::ADC_Test(){
 	//static Peripherals peripherals;
 	static ADCobj adc;
 	peripherals.adc = &adc;
+	peripherals.adc->setup();
+
 	static Display display;
 	peripherals.display = &display;
 	peripherals.display->setup(u8x8_byte_hw_i2c, u8x8_stm32_gpio_and_delay);
 
-	peripherals.adc->setup();
+
 }
 
 void ADC_Test::perform(){
-	peripherals.adc->read(TEST_CURRENT);
+	peripherals.adc->read(WELD_CURRENT);
 	peripherals.display->print_value(peripherals.adc->vsense);
 	HAL_Delay(50);
 	return;
@@ -172,6 +174,18 @@ void Initiate_Pulse_Test::perform(){
 		}
 	}
 	HAL_Delay(10);
+	return;
+}
+
+Statemachine_Test::Statemachine_Test(){
+	//init statemachine...
+	sm = Statemachine();
+	sm.setup();
+	return;
+}
+
+void Statemachine_Test::perform(){
+	sm.enter();
 	return;
 }
 

@@ -11,7 +11,6 @@ void empty_func(uint8_t *active_state, Peripherals *peripherals)
 
 Statemachine::Statemachine()
 {
-	states = setup();
 	return;
 }
 

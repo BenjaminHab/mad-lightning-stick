@@ -27,36 +27,34 @@ int8_t Encoder::increment(){
 uint8_t Encoder::button(){
 	//IMPROVE: Use an interrupt flag for rising edge to stop timer?
 	//IMPROVE: Immediate reaction on long hold but no subsequent push. Maybe use rising/falling edges?
-	uint16_t cnt = TIM16->CNT;
+	//	uint16_t cnt = TIM16->CNT;
 	//	uint8_t button_state = button_pin->read();
 
-	if(cnt > 750){
-		TIM16->CR1 &= ~(TIM_CR1_CEN_Msk); //Stop timer
-		TIM16->CNT = 0; //reset timer
-		return 2;
-	} else if(((EXTI->PR) & (1<<5)) > 0) { //check for edge
+	if(((EXTI->PR) & (1<<5)) > 0) { //check for edge
 		EXTI->PR |= (1<<5); //Reset edge detection
 		switch (button_pin->read()){ //choose between rising and falling edge
 		case 0: {//Falling Edge: Button pressed
-			if(cnt == 0){
-				//timer not running -> start timer
-				//Clear Update Interrupt Flag:
-				TIM16->SR &= ~(TIM_SR_UIF_Msk);
-				//Enable timer:
-				TIM16->CR1 |= (TIM_CR1_CEN_Msk);
-			}
+			//			if(cnt == 0){
+			TIM16->SR &= ~(TIM_SR_UIF_Msk); //Clear Update Interrupt Flag
+			TIM16->CR1 |= (TIM_CR1_CEN_Msk); //Enable counter
+			//			}
+			return 0;
 			break;
 		}
 		case 1:{ //Rising Edge: Button released
 			TIM16->CR1 &= ~(TIM_CR1_CEN_Msk); //Stop timer
-			TIM16->CNT = 0; //reset timer
-			if(cnt == 0){
-				break;
+			if(TIM16->CNT == 0){ //Timer already reset -> previous long button press
+				return 0;
 			}else{
+				TIM16->CNT = 0; //reset timer
 				return 1;
 			}
 		}
 		}
+	}else if(TIM16->CNT > 750){
+		TIM16->CR1 &= ~(TIM_CR1_CEN_Msk); //Stop timer
+		TIM16->CNT = 0; //reset timer
+		return 2;
 	}
 
 	return 0;

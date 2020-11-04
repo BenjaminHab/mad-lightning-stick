@@ -38,4 +38,12 @@ public:
 	setting_t pulsetime_setting;
 };
 
+class Statemachine_Test : public Test{
+	public:
+	Statemachine_Test();
+	void perform();
+	Statemachine sm;
+};
+
+
 #endif

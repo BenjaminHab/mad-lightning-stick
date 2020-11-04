@@ -124,18 +124,19 @@ int main(void)
 	MX_I2C1_Init();
 	//MX_TIM14_Init();
 	//MX_TIM3_Init();
-	//MX_TIM16_Init();
+//	MX_TIM16_Init();
 	/* USER CODE BEGIN 2 */
 	//TODO: Initialize Peripherals myself and save lots of memory
 	//TODO: Test Modules
 
 
 
-	//	ADC_Test test;
-	Menu_Test test;
+	// ADC_Test test;
+	// Menu_Test test;
 	//  Pulse_Test test;
 
 	//  Initiate_Pulse_Test test;
+	Statemachine_Test test;
 
 
 	/* USER CODE END 2 */
