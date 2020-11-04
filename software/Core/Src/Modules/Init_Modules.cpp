@@ -5,6 +5,7 @@
 //#include "Statemachine_Module.hpp"
 //#include "LED_Module.hpp"
 #include <vector>
+#include <array>
 //#include "Init_Modules.hpp"
 //#include "ADC_Module.hpp"
 //#include "Peripherals_Module.hpp"
@@ -176,7 +177,7 @@ void ADCobj::setup()
 //	//TODO: Make usable by other modules or alternatively setup pins in other peripherals
 //}
 
-std::vector<State>* Statemachine::setup()
+void Statemachine::setup()
 {
 
 	//Initialize and link Peripherals
@@ -206,10 +207,14 @@ std::vector<State>* Statemachine::setup()
 	setup_OC();
 
 	//Construct States
-	static std::vector<State> statevector;
+	//static std::array<State*, 5> statearray;
+	static State* statearray[5];
+	states = statearray;
+
+	//static std::vector<State*> statevector;
 
 	//IDLE State
-	State idle_state;
+	static State idle_state;
 	idle_state.id = statemachine::IDLE_STATE;
 
 	idle_state.entry_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
@@ -245,10 +250,12 @@ std::vector<State>* Statemachine::setup()
 	};
 
 	//Add to vector
-	statevector.push_back(idle_state);
+	statearray[idle_state.id] = &idle_state;
+	//statevector.push_back(&idle_state);
 
 	//PRESSED State
-	State pressed_state;
+
+	static State pressed_state;
 	pressed_state.id = statemachine::PRESSED_STATE;
 	//Configure actions
 	pressed_state.entry_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
@@ -275,11 +282,14 @@ std::vector<State>* Statemachine::setup()
 	pressed_state.exit_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
 		return;
 	};
+
 	//Add to vector
-	statevector.push_back(pressed_state);
+	statearray[pressed_state.id] = &pressed_state;
+//	statevector.push_back(&pressed_state);
+
 
 	//ARMED State
-	State armed_state;
+	static State armed_state;
 	armed_state.id = statemachine::ARMED_STATE;
 	//Configure actions
 	armed_state.entry_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
@@ -316,10 +326,12 @@ std::vector<State>* Statemachine::setup()
 		return;
 	};
 	//Add to vector
-	statevector.push_back(armed_state);
+	statearray[armed_state.id] = &armed_state;
+//	statevector.push_back(&armed_state);
+
 
 	//MENU State
-	State menu_state;
+	static State menu_state;
 	menu_state.id = statemachine::MENU_STATE;
 	//Configure actions
 	menu_state.entry_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
@@ -333,25 +345,30 @@ std::vector<State>* Statemachine::setup()
 		return;
 	};
 	//Add to vector
-	statevector.push_back(menu_state);
+	statearray[menu_state.id] = &menu_state;
+//	statevector.push_back(&menu_state);
+
 
 	//DEBUG State
-	State debug;
-	debug.id = statemachine::DEBUG_STATE;
+	static State debug_state;
+	debug_state.id = statemachine::DEBUG_STATE;
 	//Configure actions
-	debug.entry_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
+	debug_state.entry_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
 		return;
 	};
-	debug.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
+	debug_state.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
 		return;
 	};
-	debug.exit_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
+	debug_state.exit_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
 		return;
 	};
 	//Add to vector
-	statevector.push_back(debug);
+	statearray[debug_state.id] = &debug_state;
+//	statevector.push_back(&debug_state);
 
-	return &statevector;
+
+//	return &statevector;
+	return;
 }
 
 void RCC_Interface::setup(){

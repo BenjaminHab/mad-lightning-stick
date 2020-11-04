@@ -8,6 +8,8 @@
 #include "Encoder_Module.hpp"
 #include "Peripherals_Module.hpp"
 #include <vector>
+#include <functional>
+
 
 //Types
 
@@ -28,9 +30,12 @@ public:
     uint8_t id;
 
     //Pointers to state functions
-    void (*entry_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
-    void (*body_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
-    void (*exit_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
+//    void (*entry_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func; //Possible BUG: If those lambdas are not static...
+//    void (*body_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
+//    void (*exit_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
+    std::function<void(uint8_t* active_state, Peripherals *peripherals)> entry_action = [](uint8_t* active_state, Peripherals *peripherals){};
+    std::function<void(uint8_t* active_state, Peripherals *peripherals)> body_action = [](uint8_t* active_state, Peripherals *peripherals){};
+    std::function<void(uint8_t* active_state, Peripherals *peripherals)> exit_action = [](uint8_t* active_state, Peripherals *peripherals){};
 };
 
 class Statemachine
@@ -41,10 +46,11 @@ public:
 
     //Methods
     void enter();
-    std::vector<State> *setup();
+    void setup();
 
     //Attributes
-    std::vector<State> *states;
+//    std::vector<State*> *states = nullptr;
+    State** states = nullptr;
     uint8_t active_state = 0;
 
     //Linked Resources

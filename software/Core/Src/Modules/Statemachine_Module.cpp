@@ -20,7 +20,7 @@ void Statemachine::enter()
 	while (true)
 	{
 		//Eternal loop: Enter states as they come
-		(*states)[active_state].enter(&active_state, &peripherals);
+		(states[active_state])->enter(&active_state, &peripherals);
 	}
 	return;
 }
