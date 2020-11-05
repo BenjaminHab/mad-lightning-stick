@@ -200,7 +200,7 @@ void Statemachine::setup()
 	peripherals.adc = &adc;
 	peripherals.adc->setup();
 
-	static Menu menu;
+	static Menu menu(&encoder, &display);
 	peripherals.menu = &menu;
 	peripherals.menu->setup();
 
@@ -236,7 +236,7 @@ void Statemachine::setup()
 		(*peripherals).adc->read(TEST_CURRENT);
 
 		//change the state to PRESSED_STATE when button is pressed and electrode has contact
-		if ((*peripherals).button->read() && (*peripherals).adc->vsense > 1024)
+		if ((*peripherals).button->read() && (*peripherals).adc->vsense > 300)
 		{
 			*active_state = statemachine::PRESSED_STATE;
 		}
@@ -339,6 +339,7 @@ void Statemachine::setup()
 		return;
 	};
 	menu_state.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
+		*active_state = statemachine::IDLE_STATE;
 		return;
 	};
 	menu_state.exit_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
