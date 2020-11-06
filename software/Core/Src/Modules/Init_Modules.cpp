@@ -82,7 +82,7 @@ void Encoder::setup()
 
 	//Setup Button External Interrupt Edge detection
 	SYSCFG->EXTICR[1] &= ~(0b1111 << SYSCFG_EXTICR2_EXTI5_Pos); // Set EXTI5 to watch pin A5
-//	EXTI->EMR |= (EXTI_EMR_EM5); // Unmask the Event
+	//	EXTI->EMR |= (EXTI_EMR_EM5); // Unmask the Event
 	EXTI->IMR |= (EXTI_IMR_IM5); // Unmask the Interrupt
 	EXTI->RTSR = (EXTI_RTSR_RT5); // Setup Trigger on rising edge
 	EXTI->FTSR = (EXTI_FTSR_FT5); // Setup Trigger on falling edge
@@ -96,15 +96,15 @@ void Encoder::setup()
 
 
 	AFIO encoder_pin_a(GPIOA, 6, PULL_UP, AF1);
-//	encoder_pin_a.set_speed(HIGH_SPEED);
+	//	encoder_pin_a.set_speed(HIGH_SPEED);
 	AFIO encoder_pin_b(GPIOA, 7, PULL_UP, AF1);
-//	encoder_pin_b.set_speed(HIGH_SPEED);
+	//	encoder_pin_b.set_speed(HIGH_SPEED);
 
 	// Timer 3 setup
 	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;// Enable TIM3 peripheral clock
 	TIM3->ARR = 0xffff; //set Auto Reload Register to a high value, so it won't make a problem
 	TIM3->CCMR1 |= (0b10 << TIM_CCMR1_CC1S_Pos) | (0b10 << TIM_CCMR1_CC2S_Pos); // Map the input pins to TI1 and TI2, respectively
-//	TIM3->SMCR |= (0b0101 << TIM_SMCR_ETF_Pos); //Set intermediate filter???
+	//	TIM3->SMCR |= (0b0101 << TIM_SMCR_ETF_Pos); //Set intermediate filter???
 	TIM3->CCMR1 |= (0b1111 << TIM_CCMR1_IC1F_Pos) | (0b1111 << TIM_CCMR1_IC2F_Pos); //Set input filters for both inputs
 	TIM3->SMCR |= TIM_SMCR_SMS_0; //count on TI1 edges only
 	TIM3->CNT = 100; //Preset the counter
@@ -235,11 +235,15 @@ void Statemachine::setup()
 		//read voltage drop
 		(*peripherals).adc->read(TEST_CURRENT);
 
-		//change the state to PRESSED_STATE when button is pressed and electrode has contact
-		if ((*peripherals).button->read() && (*peripherals).adc->vsense > 300)
-		{
-			*active_state = statemachine::PRESSED_STATE;
-		}
+		//change the state to PRESSED_STATE when button is pressed (i.e. LOW) and electrode has contact
+#ifdef DEBUG_3V3
+		if (((*peripherals).button->read() == BUTTON_PRESSED) && ((*peripherals).adc->vsense > 300))
+#else
+			if (((*peripherals).button->read() == BUTTON_PRESSED) && (*peripherals).adc->vsense > 1024)
+#endif
+			{
+				*active_state = statemachine::PRESSED_STATE;
+			}
 
 		// HAL_Delay(10);
 		return;
@@ -264,18 +268,21 @@ void Statemachine::setup()
 		return;
 	};
 	pressed_state.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
-		if (!((*peripherals).button->read())) //Wait for release of ARM Button
+		if ((*peripherals).button->read() == BUTTON_RELEASED) //Wait for release (i.e. HIGH state) of ARM Button
 		{
 			(*peripherals).adc->read(TEST_CURRENT); //check for electrode contact
-			if (((*peripherals).adc->vsense) >= 1024)
-			{ //Change to ARMED_STATE if still in contact
-				*active_state = statemachine::ARMED_STATE;
-				return;
-			}
-			else
-			{ //Return to IDLE_STATE if no contact is found
-				*active_state = statemachine::IDLE_STATE;
-			}
+#ifdef DEBUG_3V3
+			if (((*peripherals).adc->vsense) >= 300)
+#else
+				if (((*peripherals).adc->vsense) >= 1024)
+#endif
+				{ //Change to ARMED_STATE if still in contact
+					*active_state = statemachine::ARMED_STATE;
+				}
+				else
+				{ //Return to IDLE_STATE if no contact is found
+					*active_state = statemachine::IDLE_STATE;
+				}
 		}
 		return;
 	};
@@ -285,7 +292,7 @@ void Statemachine::setup()
 
 	//Add to vector
 	statearray[pressed_state.id] = &pressed_state;
-//	statevector.push_back(&pressed_state);
+	//	statevector.push_back(&pressed_state);
 
 
 	//ARMED State
@@ -327,7 +334,7 @@ void Statemachine::setup()
 	};
 	//Add to vector
 	statearray[armed_state.id] = &armed_state;
-//	statevector.push_back(&armed_state);
+	//	statevector.push_back(&armed_state);
 
 
 	//MENU State
@@ -347,7 +354,7 @@ void Statemachine::setup()
 	};
 	//Add to vector
 	statearray[menu_state.id] = &menu_state;
-//	statevector.push_back(&menu_state);
+	//	statevector.push_back(&menu_state);
 
 
 	//DEBUG State
@@ -365,10 +372,10 @@ void Statemachine::setup()
 	};
 	//Add to vector
 	statearray[debug_state.id] = &debug_state;
-//	statevector.push_back(&debug_state);
+	//	statevector.push_back(&debug_state);
 
 
-//	return &statevector;
+	//	return &statevector;
 	return;
 }
 

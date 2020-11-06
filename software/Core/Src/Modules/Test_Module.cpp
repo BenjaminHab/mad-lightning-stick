@@ -18,12 +18,38 @@ ADC_Test::ADC_Test(){
 	peripherals.display = &display;
 	peripherals.display->setup(u8x8_byte_hw_i2c, u8x8_stm32_gpio_and_delay);
 
+	static char weld_text[] = "Weld";
+	weld_text_str = weld_text;
+	static char test_text[] = "Test";
+	test_text_str = test_text;
+
 
 }
 
 void ADC_Test::perform(){
-	peripherals.adc->read(WELD_CURRENT);
-	peripherals.display->print_value(peripherals.adc->vsense);
+	//Read both channels
+	weld_read = peripherals.adc->read(WELD_CURRENT);
+	test_read = peripherals.adc->read(TEST_CURRENT);
+
+	//convert to text
+	uint_to_cstr(weld_read, weld_str);
+	uint_to_cstr(test_read, test_str);
+
+
+	u8g2_FirstPage(peripherals.display->u8g2);
+	do
+	{
+
+		u8g2_DrawStr(peripherals.display->u8g2, 25, 9, weld_text_str);
+		u8g2_DrawStr(peripherals.display->u8g2, 25, 21, weld_str);
+		u8g2_DrawStr(peripherals.display->u8g2, 89, 9, test_text_str);
+		u8g2_DrawStr(peripherals.display->u8g2, 89, 21, test_str);
+
+	} while (u8g2_NextPage(peripherals.display->u8g2));
+
+
+
+
 	HAL_Delay(50);
 	return;
 }

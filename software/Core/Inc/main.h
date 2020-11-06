@@ -100,6 +100,8 @@ void Error_Handler(void);
 #define LED_Pin GPIO_PIN_1
 #define LED_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+
+#define DEBUG_3V3 1U
 //IMPROVE: Add Timer module to setup timers
 //IMPROVE: Measure Current and Voltage during pulse
 /* USER CODE END Private defines */

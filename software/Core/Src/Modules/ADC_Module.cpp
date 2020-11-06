@@ -10,10 +10,6 @@ ADCobj::ADCobj()
 uint32_t ADCobj::read(uint8_t channel)
 {
     vsense = 0;
-    // if (HAL_ADC_PollForConversion(&hadc, 1000) == HAL_OK)
-    //         {
-    //              vsense = HAL_ADC_GetValue(&hadc); //FIXME: Get the right channel/use interrupts/whatever
-    //         }
 
     //Select Channel for conversion:
     ADC1->CHSELR = (1 << channel);
@@ -26,8 +22,7 @@ uint32_t ADCobj::read(uint8_t channel)
 
     /* Performs the AD conversion */
     ADC1->CR |= ADC_CR_ADSTART; /* start the ADC conversion */
-    while ((ADC1->ISR & ADC_ISR_EOC) == 0)
-        ; /* wait end of conversion */
+    while ((ADC1->ISR & ADC_ISR_EOC) == 0){}; /* wait end of conversion */
 
     vsense = ADC1->DR;
 

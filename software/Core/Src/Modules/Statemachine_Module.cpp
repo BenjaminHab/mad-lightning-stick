@@ -3,8 +3,10 @@
 #include "main.h"
 
 
-void empty_func(uint8_t *active_state, Peripherals *peripherals)
+void error_func(uint8_t *active_state, Peripherals *peripherals)
 {
+	peripherals->display->print_state("Error");
+	while(true){} //Wait for user to notice
 	return;
 }
 

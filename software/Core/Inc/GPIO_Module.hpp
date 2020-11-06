@@ -22,6 +22,11 @@ enum PinLevel{
 	HIGH = 1
 };
 
+enum ButtonState{
+	BUTTON_PRESSED = 0,
+	BUTTON_RELEASED = 1
+};
+
 enum AlternateFunction{
 	AF0,
 	AF1,

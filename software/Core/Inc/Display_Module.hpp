@@ -31,4 +31,6 @@ public:
 	u8g2_t* u8g2;
 };
 
+void uint_to_cstr(uint16_t numval, char* text);
+
 #endif

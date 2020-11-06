@@ -131,12 +131,12 @@ int main(void)
 
 
 
-	// ADC_Test test;
+	 ADC_Test test;
 	// Menu_Test test;
 	//  Pulse_Test test;
 
 	//  Initiate_Pulse_Test test;
-	Statemachine_Test test;
+//	Statemachine_Test test;
 
 
 	/* USER CODE END 2 */

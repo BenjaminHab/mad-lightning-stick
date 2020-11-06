@@ -14,47 +14,50 @@
 //Types
 
 //Functions
-void empty_func(uint8_t* active_state, Peripherals *peripherals);
+void error_func(uint8_t* active_state, Peripherals *peripherals);
 
 //Classes
 class State
 {
 public:
-    //Constructors
-    State();
+	//Constructors
+	State();
 
-    //Methods
-    void enter(uint8_t* active_state, Peripherals *peripherals);
+	//Methods
+	void enter(uint8_t* active_state, Peripherals *peripherals);
 
-    //Attributes
-    uint8_t id;
+	//Attributes
+	uint8_t id;
 
-    //Pointers to state functions
-//    void (*entry_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func; //Possible BUG: If those lambdas are not static...
-//    void (*body_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
-//    void (*exit_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
-    std::function<void(uint8_t* active_state, Peripherals *peripherals)> entry_action = [](uint8_t* active_state, Peripherals *peripherals){};
-    std::function<void(uint8_t* active_state, Peripherals *peripherals)> body_action = [](uint8_t* active_state, Peripherals *peripherals){};
-    std::function<void(uint8_t* active_state, Peripherals *peripherals)> exit_action = [](uint8_t* active_state, Peripherals *peripherals){};
+	//Pointers to state functions
+	//    void (*entry_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func; //Possible BUG: If those lambdas are not static...
+	//    void (*body_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
+	//    void (*exit_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
+	//    std::function<void(uint8_t* active_state, Peripherals *peripherals)> entry_action = [](uint8_t* active_state, Peripherals *peripherals){};
+	//    std::function<void(uint8_t* active_state, Peripherals *peripherals)> body_action = [](uint8_t* active_state, Peripherals *peripherals){};
+	//    std::function<void(uint8_t* active_state, Peripherals *peripherals)> exit_action = [](uint8_t* active_state, Peripherals *peripherals){};
+	std::function<void(uint8_t* active_state, Peripherals *peripherals)> entry_action = &error_func;
+	std::function<void(uint8_t* active_state, Peripherals *peripherals)> body_action = &error_func;
+	std::function<void(uint8_t* active_state, Peripherals *peripherals)> exit_action = &error_func;
 };
 
 class Statemachine
 {
 public:
-    //Constructors
-    Statemachine();
+	//Constructors
+	Statemachine();
 
-    //Methods
-    void enter();
-    void setup();
+	//Methods
+	void enter();
+	void setup();
 
-    //Attributes
-//    std::vector<State*> *states = nullptr;
-    State** states = nullptr;
-    uint8_t active_state = 0;
+	//Attributes
+	//    std::vector<State*> *states = nullptr;
+	State** states = nullptr;
+	uint8_t active_state = 0;
 
-    //Linked Resources
-    Peripherals peripherals;
+	//Linked Resources
+	Peripherals peripherals;
 
 
 };

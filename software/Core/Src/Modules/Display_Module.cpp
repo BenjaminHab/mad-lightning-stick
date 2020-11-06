@@ -110,3 +110,17 @@ void Display::print_value(uint16_t numval){
 	} while (u8g2_NextPage(u8g2));
 	return;
 }
+
+void uint_to_cstr(uint16_t numval, char* text){
+	//Assemble a string to print
+		for (uint8_t i = 2; i <= 5; i++)
+		{
+			text[5 - i] = (char)((numval % 10U) + '0');
+			numval /= 10;
+		}
+		text[4] = '\0';
+		return;
+}
+
+
+

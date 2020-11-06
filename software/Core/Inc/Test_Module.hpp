@@ -13,8 +13,15 @@ public:
 class ADC_Test: public Test{
 public:
 	ADC_Test();
-	//void setup();
+
 	void perform();
+
+	char* weld_text_str;
+	char* test_text_str;
+	uint16_t weld_read;
+	uint16_t test_read;
+	char weld_str[5];
+	char test_str[5];
 };
 
 class Menu_Test: public Test{
