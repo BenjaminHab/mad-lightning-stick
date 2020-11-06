@@ -185,7 +185,7 @@ void Statemachine::setup()
 	static LED led(&led_pin);
 	peripherals.led = &led;
 
-	static Input arm_button(ARM_GPIO_Port, ARM_Pin, PULL_UP);
+	static Input arm_button(GPIOF, 0, PULL_UP);
 	peripherals.button = &arm_button;
 
 	static Display display;
@@ -235,9 +235,11 @@ void Statemachine::setup()
 		//read voltage drop
 		(*peripherals).adc->read(TEST_CURRENT);
 
+		uint8_t button_state = (*peripherals).button->read(); //BUG: Though the IDR says otherwise, the button read never returns BUTTON_PRESSED
+
 		//change the state to PRESSED_STATE when button is pressed (i.e. LOW) and electrode has contact
 #ifdef DEBUG_3V3
-		if (((*peripherals).button->read() == BUTTON_PRESSED) && ((*peripherals).adc->vsense > 300))
+		if ((button_state == BUTTON_PRESSED) && ((*peripherals).adc->vsense > 300))
 #else
 			if (((*peripherals).button->read() == BUTTON_PRESSED) && (*peripherals).adc->vsense > 1024)
 #endif
@@ -287,6 +289,7 @@ void Statemachine::setup()
 		return;
 	};
 	pressed_state.exit_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
+		HAL_Delay(50);
 		return;
 	};
 
@@ -309,18 +312,17 @@ void Statemachine::setup()
 	armed_state.body_action = [](uint8_t *active_state, Peripherals *peripherals) -> void {
 		(*peripherals).adc->read(TEST_CURRENT);
 		//check if the welder should be disarmed
-		if (((*peripherals).button->read()))
+		if (((*peripherals).button->read()) == BUTTON_PRESSED)
 		{
 			*active_state = statemachine::PRESSED_STATE;
 			return;
 		}
-		else if ((((*peripherals).adc->vsense) * 4) <= ((*peripherals).adc->vref))
-		{ //check for electrode to be lifted again
+		else if ((((*peripherals).adc->vsense) * 4) <= ((*peripherals).adc->vref)){ //check for electrode to be lifted again
 			//fire pulse
-			// (*peripherals).display->print_state("FIRING");
 			weld_pulse(((*peripherals).menu->settings)[menu::PULSETIME_SETTING]);
 
 			//return to idle state
+//			(*peripherals).display->print_state("FIRING");
 			*active_state = statemachine::IDLE_STATE;
 
 			//HAL_Delay(10);
