@@ -30,9 +30,6 @@ public:
 	uint8_t id;
 
 	//Pointers to state functions
-	//    void (*entry_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func; //Possible BUG: If those lambdas are not static...
-	//    void (*body_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
-	//    void (*exit_action)(uint8_t* active_state, Peripherals *peripherals) = &empty_func;
 	//    std::function<void(uint8_t* active_state, Peripherals *peripherals)> entry_action = [](uint8_t* active_state, Peripherals *peripherals){};
 	//    std::function<void(uint8_t* active_state, Peripherals *peripherals)> body_action = [](uint8_t* active_state, Peripherals *peripherals){};
 	//    std::function<void(uint8_t* active_state, Peripherals *peripherals)> exit_action = [](uint8_t* active_state, Peripherals *peripherals){};

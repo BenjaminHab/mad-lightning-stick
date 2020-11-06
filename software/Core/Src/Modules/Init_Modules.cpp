@@ -138,8 +138,8 @@ void ADCobj::setup()
 	ADC1->CR &= (uint32_t)(~ADC_CR_ADEN); /* (2) */
 	// }
 	while ((ADC1->CR & ADC_CR_ADEN)){} //Wait for ADC to be off
-	ADC1->CR |= ADC_CR_ADCAL;              /* (3) */	//BUG: ADC is enabled at this point???
-	while ((ADC1->CR & ADC_CR_ADCAL) != 0) /* (4) */  //BUG: In the Statemachine Test, the program loops here endlessly
+	ADC1->CR |= ADC_CR_ADCAL;              /* (3) */
+	while ((ADC1->CR & ADC_CR_ADCAL) != 0) /* (4) */
 	{
 		/* For robust implementation, add here time-out management */
 	}
@@ -172,7 +172,6 @@ void ADCobj::setup()
 //void GPIO_setup(){
 //	static GPIOPin solenoid1(GPIOA, 2, OUTPUT_MODE, PULL_DOWN);
 //	static GPIOPin solenoid2(GPIOA, 3, OUTPUT_MODE, PULL_DOWN);
-//	static Input encoder_button_pin(GPIOA, 5, PULL_UP);
 //
 //	//TODO: Make usable by other modules or alternatively setup pins in other peripherals
 //}
@@ -235,7 +234,7 @@ void Statemachine::setup()
 		//read voltage drop
 		(*peripherals).adc->read(TEST_CURRENT);
 
-		uint8_t button_state = (*peripherals).button->read(); //BUG: Though the IDR says otherwise, the button read never returns BUTTON_PRESSED
+		uint8_t button_state = (*peripherals).button->read();
 
 		//change the state to PRESSED_STATE when button is pressed (i.e. LOW) and electrode has contact
 #ifdef DEBUG_3V3
@@ -385,16 +384,6 @@ void RCC_Interface::setup(){
 	//TODO: Initialize the clocks for the interfaces I2C etc. or do it in their own setup, like with the GPIO...
 	return;
 }
-
-//uint8_t read_arm_button()
-//{
-//	//TODO: Configure PULLUP in CubeMX
-//	// GPIO_TypeDef* Button_Port = ARM_GPIO_Port;
-//	// uint16_t Button_Pin = ARM_Pin;
-//	// //return the current state of the ARM Button
-//	// return !HAL_GPIO_ReadPin(Button_Port, Button_Pin);
-//	return !HAL_GPIO_ReadPin(ARM_GPIO_Port, ARM_Pin);
-//}
 
 void weld_pulse(setting_t *pulsetime_setting)
 {

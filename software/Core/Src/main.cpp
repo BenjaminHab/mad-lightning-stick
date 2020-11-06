@@ -52,7 +52,6 @@
 
 //Modules
 #include "Modules.hpp"
-//BUG: Use github!!!!!
 
 /* USER CODE END Includes */
 
