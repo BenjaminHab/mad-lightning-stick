@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name pawelder)(type Legacy)(uri /home/benjamin/Documents/Studium/00_Allgemeines/Basteln/Elektronik/Pulse_Arc_Welder/pawelder.lib)(options "")(descr ""))
-  (lib (name Pulse_Arc_Welder-rescue)(type Legacy)(uri ${KIPRJMOD}/Pulse_Arc_Welder-rescue.lib)(options "")(descr ""))
-)

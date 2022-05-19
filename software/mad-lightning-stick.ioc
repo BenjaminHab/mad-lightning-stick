@@ -201,4 +201,3 @@ VP_TIM16_VS_ClockSourceINT.Signal=TIM16_VS_ClockSourceINT
 VP_TIM16_VS_OPM.Mode=OPM_bit
 VP_TIM16_VS_OPM.Signal=TIM16_VS_OPM
 board=custom
-isbadioc=false
